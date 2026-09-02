@@ -2,7 +2,7 @@ name: Build Dopamine Extended
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, master ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -19,21 +19,17 @@ jobs:
         submodules: recursive
         
     - name: Setup Xcode
-      uses: maximum∜/setup-xcode@v1
+      uses: maximumd/setup-xcode@v1
       with:
         xcode-version: '15.4'
         
     - name: Install dependencies
       run: |
         brew install ldid
-        brew install darling
-        
-    - name: Copy ClearSword files
-      run: |
-        cp -r ClearSwordDopamine/* BaseBin/libjailbreak/src/clearsword/
         
     - name: Build Dopamine
       run: |
+        cd Application
         make clean
         make
         
@@ -41,37 +37,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Dopamine-Extended-${{ github.sha }}
-        path: |
-          Application/build/
-          *.ipa
+        path: Application/build/
         retention-days: 30
-        
-    - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ github.run_number }}
-        name: Dopamine Extended ${{ github.run_number }}
-        body: |
-          ## Dopamine Extended
-          
-          ClearSword exploit integration for iOS 18.7.3
-          
-          ### Changes
-          - Integrated ClearSword exploit (CVE-2025-43520)
-          - Added iOS 18.7.3 support for A12 devices
-          - Added "Extended!" subtitle
-          
-          ### Supported Devices
-          - iPhone XS (A12)
-          - iPhone XR (A12)
-          - iPhone SE 2020 (A13)
-          
-          ### Supported iOS Versions
-          - iOS 15.0 - 26.0.1
-        files: |
-          Application/build/*.ipa
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

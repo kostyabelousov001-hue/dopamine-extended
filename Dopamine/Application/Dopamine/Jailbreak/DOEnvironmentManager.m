@@ -30,7 +30,7 @@
 #import <LocalAuthentication/LocalAuthentication.h>
 
 int reboot3(uint64_t flags, ...);
-CFPropertyListRef MGCopyAnswer(CFStringRef);
+typedef CFPropertyListRef (*MGCopyAnswerFunc)(CFStringRef);
 extern char **environ;
 
 @implementation DOEnvironmentManager
@@ -323,7 +323,13 @@ extern char **environ;
 
 - (NSString *)systemVersion
 {
-    return (__bridge NSString *)MGCopyAnswer((__bridge CFStringRef)@"ProductVersion");
+    static MGCopyAnswerFunc mgCopyAnswer;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        mgCopyAnswer = (MGCopyAnswerFunc)dlsym(RTLD_DEFAULT, "MGCopyAnswer");
+    });
+    if (!mgCopyAnswer) return nil;
+    return (__bridge NSString *)mgCopyAnswer((__bridge CFStringRef)@"ProductVersion");
 }
 
 - (BOOL)isBootstrapped

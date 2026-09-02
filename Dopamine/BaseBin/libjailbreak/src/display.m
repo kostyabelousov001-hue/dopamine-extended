@@ -13,6 +13,16 @@
 
 CFTypeRef MGCopyAnswer(CFStringRef str);
 
+static CFTypeRef mg_copy_answer(CFStringRef key)
+{
+	static CFTypeRef (*fn)(CFStringRef);
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		fn = (CFTypeRef (*)(CFStringRef))dlsym(RTLD_DEFAULT, "MGCopyAnswer");
+	});
+	return fn ? fn(key) : NULL;
+}
+
 int drawctx_update(struct drawctx *d)
 {
 	if (!d || !d->framebuffer) return -1;
@@ -194,7 +204,7 @@ finish:
 
 BOOL is_ipad(void)
 {
-	CFStringRef deviceClass = MGCopyAnswer(CFSTR("DeviceClass"));
+	CFStringRef deviceClass = mg_copy_answer(CFSTR("DeviceClass"));
 	if (!deviceClass) return NO;
 	BOOL result = CFStringCompare(deviceClass, CFSTR("iPad"), 0) == kCFCompareEqualTo;
 	CFRelease(deviceClass);
@@ -204,11 +214,11 @@ BOOL is_ipad(void)
 CGFloat get_main_screen_rotation(void)
 {
 	if (is_ipad()) {
-		CFNumberRef mainScreenOrientationNum = MGCopyAnswer(CFSTR("main-screen-orientation"));
+		CFNumberRef mainScreenOrientationNum = mg_copy_answer(CFSTR("main-screen-orientation"));
 		if (mainScreenOrientationNum) {
 			unsigned long long mainScreenOrientation = [(__bridge NSNumber *)mainScreenOrientationNum unsignedLongLongValue];
 			if (mainScreenOrientation == 0) { // iPads that have a non landscape base orientation...
-				CFNumberRef displayBootRotationNum = MGCopyAnswer(CFSTR("DisplayBootRotation"));
+				CFNumberRef displayBootRotationNum = mg_copy_answer(CFSTR("DisplayBootRotation"));
 				unsigned long long displayBootRotation = [(__bridge NSNumber *)displayBootRotationNum unsignedLongLongValue]; // ...need to take the displayBootRotation as the image rotation
 
 				switch (displayBootRotation) {
@@ -223,7 +233,7 @@ CGFloat get_main_screen_rotation(void)
 				}
 			}
 			else { // iPads that DO have a lanscape base orientation...
-				CFNumberRef displayBootRotationNum = MGCopyAnswer(CFSTR("DisplayBootRotation"));
+				CFNumberRef displayBootRotationNum = mg_copy_answer(CFSTR("DisplayBootRotation"));
 				unsigned long long displayBootRotation = [(__bridge NSNumber *)displayBootRotationNum unsignedLongLongValue];
 				switch (displayBootRotation) {
 					case 0:

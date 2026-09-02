@@ -1,40 +1,20 @@
-name: Build Dopamine Extended
+name: Create Release
 
 on:
   push:
-    branches: [ main, develop, master ]
-  pull_request:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: macos-14
-    timeout-minutes: 30
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        
-    - name: Create Release Archive
-      run: |
-        mkdir -p release
-        tar -czf release/Dopamine-Extended-source.tar.gz \
-          --exclude='.git' \
-          --exclude='release' \
-          .
-        
-    - name: Upload source archive
-      uses: actions/upload-artifact@v4
-      with:
-        name: Dopamine-Extended-Source-${{ github.sha }}
-        path: release/
-        retention-days: 30
         
     - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ github.run_number }}
@@ -58,10 +38,9 @@ jobs:
           - iOS 15.0 - 26.0.1
           
           ### Building from Source
-          1. Clone with submodules: `git clone --recursive`
-          2. Install dependencies: `brew install ldid libtool automake`
-          3. Build: `make`
-        files: release/*
+          1. Download source code
+          2. On macOS with Xcode: `make`
+          3. Sign and install IPA
         draft: false
         prerelease: false
       env:

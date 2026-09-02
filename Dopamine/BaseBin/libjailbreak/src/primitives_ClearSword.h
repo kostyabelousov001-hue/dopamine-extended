@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // Initialize ClearSword exploit for iOS 18.7.3
 // Returns 0 on success, non-zero on failure

@@ -29,6 +29,8 @@ jobs:
         brew install ldid
         brew install libtool
         brew install automake
+        brew install libarchive
+        brew install libbsm
         
     - name: Install theos
       run: |

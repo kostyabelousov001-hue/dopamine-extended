@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/sysctl.h>
 
 // ClearSword internal functions (from poc.c)
 extern int clearsword_run(void);

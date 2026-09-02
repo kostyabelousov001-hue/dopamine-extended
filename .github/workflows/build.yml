@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: macos-14
-    timeout-minutes: 30
+    timeout-minutes: 120
     
     steps:
     - name: Checkout repository
@@ -26,16 +26,59 @@ jobs:
     - name: Install dependencies
       run: |
         brew install ldid
+        brew install libtool
+        brew install automake
+        brew install cmake
         
     - name: Build Dopamine
       run: |
-        cd Application
-        make clean
         make
         
-    - name: Upload build artifact
+    - name: Create Release Archive
+      run: |
+        mkdir -p release
+        tar -czf release/Dopamine-Extended-source.tar.gz \
+          --exclude='.git' \
+          --exclude='release' \
+          .
+        
+    - name: Upload source archive
       uses: actions/upload-artifact@v4
       with:
-        name: Dopamine-Extended-${{ github.sha }}
-        path: Application/build/
+        name: Dopamine-Extended-Source-${{ github.sha }}
+        path: release/
         retention-days: 30
+        
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: Dopamine Extended v${{ github.run_number }}
+        body: |
+          ## Dopamine Extended
+          
+          ClearSword exploit integration for iOS 18.7.3
+          
+          ### Changes
+          - Integrated ClearSword exploit (CVE-2025-43520)
+          - Added iOS 18.7.3 support for A12 devices
+          - Added "Extended!" subtitle
+          
+          ### Supported Devices
+          - iPhone XS (A12)
+          - iPhone XR (A12)
+          - iPhone SE 2020 (A13)
+          
+          ### Supported iOS Versions
+          - iOS 15.0 - 26.0.1
+          
+          ### Building from Source
+          1. Clone with submodules: `git clone --recursive`
+          2. Install dependencies: `brew install ldid libtool automake`
+          3. Build: `make`
+        files: release/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

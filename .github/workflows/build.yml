@@ -22,8 +22,19 @@ jobs:
       with:
         xcode-version: '15.4'
         
-    - name: Install ldid
-      run: brew install ldid
+    - name: Install dependencies
+      run: |
+        brew install ldid
+        brew install libtool
+        brew install automake
+        
+    - name: Clone Dopamine submodules
+      run: |
+        cd Dopamine
+        git clone --depth 1 https://github.com/opa334/ChOma.git BaseBin/ChOma
+        git clone --depth 1 https://github.com/opa334/XPF.git BaseBin/XPF
+        git clone --depth 1 https://github.com/opa334/opainject.git BaseBin/opainject
+        git clone --depth 1 https://github.com/opa334/litehook.git BaseBin/_external/modules/litehook
         
     - name: Build BaseBin
       run: cd Dopamine/BaseBin && make

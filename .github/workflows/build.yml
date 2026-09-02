@@ -1,4 +1,4 @@
-name: Create Release
+name: Build IPA
 
 on:
   push:
@@ -9,21 +9,37 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  build:
+    runs-on: macos-14
+    timeout-minutes: 120
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
         
-    - name: Create tag
-      run: git tag v${{ github.run_number }}
-      
-    - name: Push tag
-      run: git push origin v${{ github.run_number }}
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.4'
+        
+    - name: Install ldid
+      run: brew install ldid
+        
+    - name: Build BaseBin
+      run: cd Dopamine/BaseBin && make
+        
+    - name: Build Application IPA
+      run: cd Dopamine/Application && make
+        
+    - name: Upload IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: Dopamine-Extended.ipa
+        path: Dopamine/Application/Dopamine.ipa
+        retention-days: 30
         
     - name: Create Release
+      if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ github.run_number }}
@@ -31,24 +47,19 @@ jobs:
         body: |
           ## Dopamine Extended
           
-          ClearSword exploit integration for iOS 18.7.3
-          
-          ### Changes
-          - Integrated ClearSword exploit (CVE-2025-43520)
-          - Added iOS 18.7.3 support for A12 devices
-          - Added "Extended!" subtitle
+          ClearSword exploit for iOS 18.7.3 on A12
           
           ### Supported Devices
           - iPhone XS (A12)
           - iPhone XR (A12)
-          - iPhone SE 2020 (A13)
           
           ### Supported iOS Versions
           - iOS 15.0 - 26.0.1
           
-          ### Building from Source
-          1. Download source code
-          2. On macOS with Xcode: `make`
-          3. Sign and install IPA
+          ### Installation
+          1. Download Dopamine.ipa
+          2. Sideload with AltStore/Sideloadly
+          3. Open Dopamine and tap Jailbreak
+        files: Dopamine/Application/Dopamine.ipa
         draft: false
         prerelease: false

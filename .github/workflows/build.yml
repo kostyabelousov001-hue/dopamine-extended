@@ -19,7 +19,7 @@ jobs:
         submodules: recursive
         
     - name: Setup Xcode
-      uses: maximumd/setup-xcode@v1
+      uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '15.4'
         
@@ -72,11 +72,6 @@ jobs:
           
           ### Supported iOS Versions
           - iOS 15.0 - 26.0.1
-          
-          ### Building from Source
-          1. Clone with submodules: `git clone --recursive`
-          2. Install dependencies: `brew install ldid libtool automake`
-          3. Build: `make`
         files: release/*
         draft: false
         prerelease: false

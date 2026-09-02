@@ -5,6 +5,9 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -14,8 +17,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
         
+    - name: Create tag
+      run: git tag v${{ github.run_number }}
+      
+    - name: Push tag
+      run: git push origin v${{ github.run_number }}
+        
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ github.run_number }}
         name: Dopamine Extended v${{ github.run_number }}
@@ -43,5 +52,3 @@ jobs:
           3. Sign and install IPA
         draft: false
         prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

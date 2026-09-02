@@ -30,6 +30,12 @@ jobs:
         brew install libtool
         brew install automake
         
+    - name: Install theos
+      run: |
+        export THEOS=/opt/theos
+        git clone --recursive --depth 1 https://github.com/theos/theos.git $THEOS
+        echo "THEOS=/opt/theos" >> $GITHUB_ENV
+        
     - name: Build BaseBin
       run: cd Dopamine/BaseBin && make
         

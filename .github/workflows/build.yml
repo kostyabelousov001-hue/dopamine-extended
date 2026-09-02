@@ -39,7 +39,10 @@ jobs:
         echo "THEOS=/opt/theos" >> $GITHUB_ENV
         
     - name: Build BaseBin
-      run: cd Dopamine/BaseBin && make
+      run: |
+        export IS_IOS_SDK_OVERRIDE=1
+        export SYSROOT=$(xcrun --sdk iphoneos --show-sdk-path)
+        cd Dopamine/BaseBin && make
         
     - name: Build Application IPA
       run: cd Dopamine/Application && make

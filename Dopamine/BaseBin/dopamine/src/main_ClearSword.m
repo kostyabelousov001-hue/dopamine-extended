@@ -13,8 +13,7 @@
 #include <libproc.h>
 #include <copyfile.h>
 
-// ClearSword instead of Corellium
-#import "primitives_ClearSword.h"
+#import "clearsword_primitives.h"
 
 #import <DOJailbreaker.h>
 #import <DOBootstrapper.h>
@@ -57,8 +56,7 @@ DOJailbreaker *gJb;
 @end
 
 void init_libjailbreak(void)
-{	
-	// Use ClearSword instead of Corellium
+{
 	int r = clearsword_primitives_init();
 	if (r != 0) {
 		printf("Failed initializing ClearSword: %d\n", r);

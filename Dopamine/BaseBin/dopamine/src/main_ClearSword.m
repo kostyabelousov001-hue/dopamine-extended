@@ -77,7 +77,7 @@ void init_libjailbreak(void)
 	}
 	usleep(1000);
 
-#if BUILD_STANDALONE
+#ifdef BUILD_STANDALONE
 	signal_krw_done();
 #endif
 

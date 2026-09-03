@@ -94,7 +94,7 @@ jobs:
           cp /tmp/packages_build.log /tmp/app_build.log
           exit $make_pkgs_rc
         fi
-        ( cd Dopamine/Application/Dopamine/Resources && ./download_bootstraps.sh ) 2>&1 | tee /tmp/bootstrap_build.log
+        ( cd Dopamine/Application/Dopamine/Resources && bash ./download_bootstraps.sh ) 2>&1 | tee /tmp/bootstrap_build.log
         bs_rc=${PIPESTATUS[0]}
         if [ $bs_rc -ne 0 ]; then
           cp /tmp/bootstrap_build.log /tmp/app_build.log

@@ -3,7 +3,7 @@
 all: Dopamine.ipa
 
 Dopamine.ipa: build/Build/Products/Debug-iphoneos/Dopamine.app
-	@echo Signing Dopamine (entitlements only, Sideloadly re-signs)
+	@echo "Signing Dopamine: entitlements only, Sideloadly re-signs"
 	xattr -rc build/Build/Products/Debug-iphoneos/Dopamine.app
 	ldid -SDopamine/Dopamine.entitlements build/Build/Products/Debug-iphoneos/Dopamine.app/Dopamine
 	rm -rf Payload Dopamine.ipa

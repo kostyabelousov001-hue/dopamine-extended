@@ -86,6 +86,14 @@ jobs:
       id: app
       continue-on-error: true
       run: |
+        set -e
+        command -v dpkg-deb >/dev/null 2>&1 || brew install dpkg
+        { make -C Dopamine/Packages; } 2>&1 | tee /tmp/packages_build.log
+        make_pkgs_rc=${PIPESTATUS[0]}
+        if [ $make_pkgs_rc -ne 0 ]; then
+          cp /tmp/packages_build.log /tmp/app_build.log
+          exit $make_pkgs_rc
+        fi
         { cd Dopamine/Application && make; } 2>&1 | tee /tmp/app_build.log
         exit ${PIPESTATUS[0]}
 

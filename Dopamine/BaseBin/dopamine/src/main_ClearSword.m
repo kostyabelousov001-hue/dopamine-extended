@@ -77,10 +77,6 @@ void init_libjailbreak(void)
 	}
 	usleep(1000);
 
-#ifdef BUILD_STANDALONE
-	signal_krw_done();
-#endif
-
 	libjailbreak_IOSurface_primitives_init();
 }
 

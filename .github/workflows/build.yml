@@ -26,12 +26,16 @@ jobs:
         
     - name: Install dependencies
       run: |
-        brew install ldid
         brew install libtool
         brew install automake
         brew install libarchive
         brew install openssl
         brew install make
+
+    - name: Install Procursus
+      uses: dhinakg/procursus-action@main
+      with:
+        packages: ldid findutils sed coreutils make
         
     - name: Build and Install trustcache
       run: |

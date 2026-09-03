@@ -40,10 +40,33 @@ jobs:
         echo "THEOS=/opt/theos" >> $GITHUB_ENV
         
     - name: Build BaseBin
+      id: basebin
+      continue-on-error: true
       run: |
         export IS_IOS_SDK_OVERRIDE=1
         export SYSROOT=$(xcrun --sdk iphoneos --show-sdk-path)
-        cd Dopamine/BaseBin && make
+        { cd Dopamine/BaseBin && make; } 2>&1 | tee /tmp/basebin_build.log
+        exit ${PIPESTATUS[0]}
+
+    - name: Publish BaseBin log (always)
+      if: always()
+      run: |
+        mkdir -p _ci_logs
+        cp -f /tmp/basebin_build.log _ci_logs/basebin_build.log 2>/dev/null || echo "no basebin log (maybe step failed early)"
+        git config user.name "CI Bot"
+        git config user.email "ci@example.com"
+        git stash -u 2>/dev/null || true
+        git checkout -B ci-logs 2>/dev/null || git checkout ci-logs 2>/dev/null || true
+        mkdir -p _ci_logs
+        cp -f /tmp/basebin_build.log _ci_logs/basebin_build.log 2>/dev/null || true
+        echo "${{ github.run_number }}/${{ github.run_attempt }}" > _ci_logs/meta.txt
+        git add _ci_logs
+        git commit -m "ci-logs run ${{ github.run_number }} attempt ${{ github.run_attempt }}" 2>/dev/null || echo "nothing to commit"
+        git push -f origin ci-logs 2>&1 | tail -5
+
+    - name: Check BaseBin result
+      if: steps.basebin.outcome == 'failure'
+      run: exit 1
         
     - name: Build Application IPA
       run: cd Dopamine/Application && make

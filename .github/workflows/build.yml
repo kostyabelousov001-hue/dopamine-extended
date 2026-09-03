@@ -30,6 +30,19 @@ jobs:
         brew install libtool
         brew install automake
         brew install libarchive
+        brew install openssl
+        brew install make
+        
+    - name: Build and Install trustcache
+      run: |
+        set -x
+        git clone https://github.com/CRKatri/trustcache /tmp/trustcache
+        cd /tmp/trustcache
+        export CFLAGS="$CFLAGS -I$(brew --prefix openssl)/include -arch arm64"
+        export LDFLAGS="$LDFLAGS -L$(brew --prefix openssl)/lib -arch arm64"
+        gmake -j$(sysctl -n hw.logicalcpu) OPENSSL=1
+        sudo cp trustcache /usr/local/bin/
+        trustcache --help >/dev/null 2>&1 || true
         
     - name: Install theos
       run: |
